@@ -13,7 +13,7 @@ sys.setdefaultencoding('utf-8')
 sys.stdout = stdout
 sys.stdin = stdin
 sys.stderr = stderr
-os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8' 
+os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
 
 class Ora():
     __pool = None
