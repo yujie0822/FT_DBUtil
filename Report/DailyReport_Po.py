@@ -27,6 +27,14 @@ oaConn = cx_Oracle.connect('oadb/oracle@192.168.0.89:1521/OADB')
 oaCursor = oaConn.cursor()
 print "OA Connection Connected"
 
+
+def findListNotInList(l1,l2):
+    l3 = []
+    for x in l1:
+        if x not in l2:
+            l3+=[x]
+    return l3
+
 def createReportSql(wfid,dateFromStr,dateToStr):
     resultStr = "select t_req.requestid,t_req.currentnodeid from workflow_requestbase \
 t_req left join workflow_nodebase t_node on t_node.id = t_req.currentnodeid \
@@ -34,160 +42,88 @@ where t_req.workflowid = "+str(wfid)+" and t_req.createdate >= \'"+dateFromStr+"
 and t_req.createdate <= \'"+dateToStr+"\'"
     return resultStr
 
-def createPersonalReportSql(userid,wfid1,wfid2,dateFromStr1,dateToStr1,dateFromStr2,dateToStr2):
+def createPersonalReportSql(userid,wfid,dateFromStr1,dateToStr1,dateFromStr2,dateToStr2):
     resultStr = """
-(select (select count(t_ope.requestid) from workflow_currentoperator t_ope
-left join workflow_requestbase t_req on t_req.requestid = t_ope.requestid
-where t_ope.userid = {0} and t_ope.workflowid = {1} and t_req.createdate >= '{3}' and t_req.createdate <= '{4}')
-as ACT,
 (select count(t_ope.requestid) from workflow_currentoperator t_ope
 left join workflow_requestbase t_req on t_req.requestid = t_ope.requestid
-where t_ope.userid = {0} and t_ope.workflowid = {2} and t_req.createdate >= '{3}' and t_req.createdate <= '{4}')
-as PAS from dual)
+where t_ope.userid = {0} and t_ope.workflowid = {1} and t_req.createdate >= '{2}' and t_req.createdate <= '{3}')
 union
-(select (select count(t_ope.requestid) from workflow_currentoperator t_ope
-left join workflow_requestbase t_req on t_req.requestid = t_ope.requestid
-where t_ope.userid = {0} and t_ope.workflowid = {1} and t_req.createdate >= '{5}' and t_req.createdate <= '{6}')
-as ACT,
 (select count(t_ope.requestid) from workflow_currentoperator t_ope
 left join workflow_requestbase t_req on t_req.requestid = t_ope.requestid
-where t_ope.userid = {0} and t_ope.workflowid = {2} and t_req.createdate >= '{5}' and t_req.createdate <= '{6}')
-as PAS from dual)
-""".format(userid,wfid1,wfid2,dateFromStr1,dateToStr1,dateFromStr2,dateToStr2)
+where t_ope.userid = {0} and t_ope.workflowid = {1} and t_req.createdate >= '{4}' and t_req.createdate <= '{5}')
+""".format(userid,wfid,dateFromStr1,dateToStr1,dateFromStr2,dateToStr2)
     return resultStr
 try:
-    #Passive今日销售订单节点状态List
-    oaCursor.execute(createReportSql(61,date_yesterday,date_yesterday))
-    pasTodayStatus = oaCursor.fetchall()
-    pasTodayNodes = [x[1] for x in pasTodayStatus]
-    pasCol = [0 for x in range(9)]
-    #CS
-    pasCol[0] = pasTodayNodes.count(261)
-    #销售
-    pasCol[1] = pasTodayNodes.count(1081)
-    #法务
-    pasCol[2] = pasTodayNodes.count(908)
-    #CS主管
-    pasCol[3] = pasTodayNodes.count(262)
-    #区域经理
-    pasCol[4] = pasTodayNodes.count(264)+pasTodayNodes.count(325)
-    #销售副总
-    pasCol[5] = pasTodayNodes.count(265)
+    print createReportSql(182,date_yesterday,date_yesterday)
+    # 今日采购订单节点状态List
+    oaCursor.execute(createReportSql(182,date_yesterday,date_yesterday))
+    poTodayStatus = oaCursor.fetchall()
+    poTodayNodes = [x[1] for x in poTodayStatus]
+    poCol = [0 for x in range(9)]
+    #MC
+    poCol[0] = poTodayNodes.count(742)
+    #PLM
+    poCol[1] = poTodayNodes.count(743)
+    #PLD
+    poCol[2] = poTodayNodes.count(744)
+    #Frank
+    poCol[3] = poTodayNodes.count(1141)
+    #Segment负责人
+    poCol[4] = poTodayNodes.count(745)
     #董事长
-    pasCol[6] = pasTodayNodes.count(268)
+    poCol[5] = poTodayNodes.count(746)
+    #物控经理盖章
+    poCol[6] = poTodayNodes.count(748)
     # 流程结束
-    pasCol[7] = pasTodayNodes.count(269)
+    poCol[7] = poTodayNodes.count(749)+poTodayNodes.count(747)
     #总计
-    pasCol[8] = len(pasTodayNodes)-pasTodayNodes.count(426)
+    poCol[8] = len(poTodayNodes)-poTodayNodes.count(750)
 
-    #Active今日销售订单节点状态List
-    oaCursor.execute(createReportSql(62,date_yesterday,date_yesterday))
-    actTodayStatus = oaCursor.fetchall()
-    actTodayNodes = [x[1] for x in actTodayStatus]
-    actCol = [0 for x in range(9)]
-    #CS
-    actCol[0] = actTodayNodes.count(270)
-    #销售
-    actCol[1] = actTodayNodes.count(1061)
-    #法务
-    actCol[2] = actTodayNodes.count(909)
-    #CS主管
-    actCol[3] = actTodayNodes.count(271)
-    #区域经理
-    actCol[4] = actTodayNodes.count(273)+actTodayNodes.count(322)
-    #销售副总
-    actCol[5] = actTodayNodes.count(274)
+    percentCol = [int(round(float(poCol[x])*100.0/float(poCol[8]))) for x in range(9)]
+
+    # 累计采购订单节点状态List
+    oaCursor.execute(createReportSql(182,'2017-07-01',date_yesterday))
+    poAllStatus = oaCursor.fetchall()
+    poAllNodes = [x[1] for x in poAllStatus]
+    poCol_t = [0 for x in range(9)]
+    #MC
+    poCol_t[0] = poAllNodes.count(742)
+    #PLM
+    poCol_t[1] = poAllNodes.count(743)
+    #PLD
+    poCol_t[2] = poAllNodes.count(744)
+    #Frank
+    poCol_t[3] = poAllNodes.count(1141)
+    #Segment负责人
+    poCol_t[4] = poAllNodes.count(745)
     #董事长
-    actCol[6] = actTodayNodes.count(277)
+    poCol_t[5] = poAllNodes.count(746)
+    #物控经理盖章
+    poCol_t[6] = poAllNodes.count(748)
     # 流程结束
-    actCol[7] = actTodayNodes.count(278)
+    poCol_t[7] = poAllNodes.count(749)+poAllNodes.count(747)
     #总计
-    actCol[8] = len(actTodayNodes)-actTodayNodes.count(427)
+    poCol_t[8] = len(poAllNodes)-poAllNodes.count(750)
 
-    todaySumCol = [pasCol[x]+actCol[x] for x in range(9)]
-    percentCol = [int(round(float(todaySumCol[x])*100.0/float(todaySumCol[8]))) for x in range(9)]
+    percentCol_t = [int(round(float(poCol_t[x])*100.0/float(poCol_t[8]))) for x in range(9)]
 
-    #Passive累计销售订单节点状态List
-    oaCursor.execute(createReportSql(61,'2017-07-01',date_yesterday))
-    pasAllStatus = oaCursor.fetchall()
-    pasAllNodes = [x[1] for x in pasAllStatus]
-    pasCol_t = [0 for x in range(9)]
-    #CS
-    pasCol_t[0] = pasAllNodes.count(261)
-    #销售
-    pasCol_t[1] = pasAllNodes.count(1081)
-    #法务
-    pasCol_t[2] = pasAllNodes.count(908)
-    #CS主管
-    pasCol_t[3] = pasAllNodes.count(262)
-    #区域经理
-    pasCol_t[4] = pasAllNodes.count(264)+pasAllNodes.count(325)
-    #销售副总
-    pasCol_t[5] = pasAllNodes.count(265)
-    #董事长
-    pasCol_t[6] = pasAllNodes.count(268)
-    # 流程结束
-    pasCol_t[7] = pasAllNodes.count(269)
-    #总计
-    pasCol_t[8] = len(pasAllNodes)-pasAllNodes.count(426)
-
-    #Active累计销售订单节点状态List
-    oaCursor.execute(createReportSql(62,'2017-07-01',date_yesterday))
-    actAllStatus = oaCursor.fetchall()
-    actAllNodes = [x[1] for x in actAllStatus]
-    actCol_t = [0 for x in range(9)]
-    #CS
-    actCol_t[0] = actAllNodes.count(270)
-    #销售
-    actCol_t[1] = actAllNodes.count(1061)
-    #法务
-    actCol_t[2] = actAllNodes.count(909)
-    #CS主管
-    actCol_t[3] = actAllNodes.count(271)
-    #区域经理
-    actCol_t[4] = actAllNodes.count(273)+actAllNodes.count(322)
-    #销售副总
-    actCol_t[5] = actAllNodes.count(274)
-    #董事长
-    actCol_t[6] = actAllNodes.count(277)
-    # 流程结束
-    actCol_t[7] = actAllNodes.count(278)
-    #总计
-    actCol_t[8] = len(actAllNodes)-actAllNodes.count(427)
-
-    allSumCol = [pasCol_t[x]+actCol_t[x] for x in range(9)]
-    percentCol_t = [int(round(float(allSumCol[x])*100.0/float(allSumCol[8]))) for x in range(9)]
-
-
-    #合计数校验
-    pasSum = 0
-    for x in pasCol[:-1]:
-        pasSum+=x
-    if(pasSum!=pasCol[8]):
-        print "pas总和异常"
-    else:
-        print "pas总和正常"
-    actSum = 0
-    for x in actCol[:-1]:
-        actSum+=x
-    if(actSum!=actCol[8]):
-        print "act总和异常"
-    else:
-        print "act总和正常"
-
-    oaCursor.execute(createPersonalReportSql(21,62,61,date_yesterday,date_yesterday,'2017-07-10',date_yesterday))
+    oaCursor.execute(createPersonalReportSql(21,182,date_yesterday,date_yesterday,'2017-07-10',date_yesterday))
     lawStatus = oaCursor.fetchall()
-    law_total_today = lawStatus[0][0]+lawStatus[0][1]
-    law_act_today = lawStatus[0][0]
-    law_pas_today = lawStatus[0][1]
+    law_total_today = lawStatus[0][0]
+    law_total_all = lawStatus[1][0]
 
-    law_total_all = lawStatus[1][0]+lawStatus[1][1]
-    law_act_all = lawStatus[1][0]
-    law_pas_all = lawStatus[1][1]
+    #节点异常处理
+    otherNodeList = findListNotInList(poTodayNodes,[742,743,744,1141,745,746,748,749,747,750])
+    otherNodeList_t = findListNotInList(poAllNodes,[742,743,744,1141,745,746,748,749,747,750])
+
+    if(len(otherNodeList)!=0):
+        print otherNodeList
+    if(len(otherNodeList_t)!=0):
+        print otherNodeList_t
 
     #--------------------发送Email部分-------------------------
     sender = 'jimmyyu@fortune-co.com'
-    receiver = ['ERPSUPPORT@fortune-co.com']
+    receiver = ['ERPSUPPORT@fortune-co.com','jacksun@fortune-co.com']
     subject = str(now.month)+'月'+str(now.day-1)+'日销售订单审批流程试运行总结'
     smtpserver = 'smtp.fortune-co.com'
     username = 'jimmyyu@fortune-co.com'
@@ -222,84 +158,63 @@ try:
     <h2 class="myHead">OA流程节点统计日报表</h2>
   </div>
   <div class="myText">
-    <p>以下分别列出{date[0]}月{date[1]}日当日及截止{date[0]}月{date[1]}日累计销售订单审批流程试运行的情况：</p>
+    <p>以下分别列出{date[0]}月{date[1]}日当日及截止{date[0]}月{date[1]}日累计采购订单审批流程试运行的情况：</p>
     <p>{date[0]}月{date[1]}日当日：</p>
     <ol>
-      <li>今天的有效订单一共{l3[8]}单（ACT共{l1[8]}单/PAS共{l2[8]}单），流程结束的一共{l3[7]}单（ACT有{l1[7]}单/PAS有{l2[7]}单），
-        批到Lawrence的{law_total_today}单-总占比{law_total_today_p}%（ACT有{law_act_today}单-占比{law_act_today_p}%
-        /PAS有{law_pas_today}单-占比{law_pas_today_p}%）</li>
+      <li>今天的有效订单一共{l1[8]}单，流程结束的一共{l1[7]}单，批到Lawrence的{law_total_today}单
+        -总占比{law_total_today_p}%</li>
       <li>流程各节点占比情况:
         <div class="myTableRow">
           <table class="myTable">
             <tr>
               <th>节点</th>
-              <th>ACT</th>
-              <th>PAS</th>
-              <th>小计</th>
-              <th>总占比</th>
+              <th>数量</th>
+              <th>占比</th>
             </tr>
             <tr>
-              <td>CS</td>
+              <td>MC</td>
               <td>{l1[0]}</td>
-              <td>{l2[0]}</td>
-              <td>{l3[0]}</td>
-              <td>{l4[0]}%</td>
+              <td>{l2[0]}%</td>
             </tr>
             <tr>
-              <td>业务员</td>
+              <td>产品线经理</td>
               <td>{l1[1]}</td>
-              <td>{l2[1]}</td>
-              <td>{l3[1]}</td>
-              <td>{l4[1]}%</td>
+              <td>{l2[1]}%</td>
             </tr>
             <tr>
-              <td>法务</td>
+              <td>产品线总监</td>
               <td>{l1[2]}</td>
-              <td>{l2[2]}</td>
-              <td>{l3[2]}</td>
-              <td>{l4[2]}%</td>
+              <td>{l2[2]}%</td>
             </tr>
             <tr>
-              <td>CS主管</td>
+              <td>运作副总</td>
               <td>{l1[3]}</td>
-              <td>{l2[3]}</td>
-              <td>{l3[3]}</td>
-              <td>{l4[3]}%</td>
+              <td>{l2[3]}%</td>
             </tr>
             <tr>
-              <td>区域经理</td>
+              <td>Segment负责人</td>
               <td>{l1[4]}</td>
-              <td>{l2[4]}</td>
-              <td>{l3[4]}</td>
-              <td>{l4[4]}%</td>
-            </tr>
-            <tr>
-              <td>销售副总</td>
-              <td>{l1[5]}</td>
-              <td>{l2[5]}</td>
-              <td>{l3[5]}</td>
-              <td>{l4[5]}%</td>
+              <td>{l2[4]}%</td>
             </tr>
             <tr>
               <td>董事长</td>
+              <td>{l1[5]}</td>
+              <td>{l2[5]}%</td>
+            </tr>
+            <tr>
+              <td>物控经理盖章</td>
               <td>{l1[6]}</td>
-              <td>{l2[6]}</td>
-              <td>{l3[6]}</td>
-              <td>{l4[6]}%</td>
+              <td>{l2[6]}%</td>
             </tr>
             <tr>
               <td>流程结束</td>
               <td>{l1[7]}</td>
-              <td>{l2[7]}</td>
-              <td>{l3[7]}</td>
-              <td>{l4[7]}%</td>
+              <td>{l2[7]}%</td>
             </tr>
             <tr>
               <th>总计</th>
               <td>{l1[8]}</td>
-              <td>{l2[8]}</td>
-              <td>{l3[8]}</td>
-              <td>{l4[8]}%</td>
+              <td>{l2[8]}%</td>
             </tr>
           </table>
         </div>
@@ -307,83 +222,60 @@ try:
     </ol>
     <p>截止{date[0]}月{date[1]}日累计：</p>
     <ol>
-      <li>累计的有效订单一共{l3_t[8]}单（ACT共{l1_t[8]}单/PAS共{l2_t[8]}单），
-        流程结束的一共{l3_t[7]}单（ACT有{l1_t[7]}单/PAS有{l2_t[7]}单），
-        批到Lawrence的{law_total_all}单-总占比{law_total_all_p}%
-        （ACT有{law_act_all}单-占比{law_act_all_p}%
-        /PAS有{law_pas_all}单-占比{law_pas_all_p}%）</li>
+      <li>累计的有效订单一共{l1_t[8]}单，流程结束的一共{l1_t[7]}单，
+        批到Lawrence的{law_total_all}单-总占比{law_total_all_p}%</li>
         <li>流程各节点占比情况:
           <div class="myTableRow">
             <table class="myTable">
               <tr>
                 <th>节点</th>
-                <th>ACT</th>
-                <th>PAS</th>
-                <th>小计</th>
-                <th>总占比</th>
+                <th>数量</th>
+                <th>占比</th>
               </tr>
               <tr>
-                <td>CS</td>
+                <td>MC</td>
                 <td>{l1_t[0]}</td>
-                <td>{l2_t[0]}</td>
-                <td>{l3_t[0]}</td>
-                <td>{l4_t[0]}%</td>
+                <td>{l2_t[0]}%</td>
               </tr>
               <tr>
-                <td>业务员</td>
+                <td>产品线经理</td>
                 <td>{l1_t[1]}</td>
-                <td>{l2_t[1]}</td>
-                <td>{l3_t[1]}</td>
-                <td>{l4_t[1]}%</td>
+                <td>{l2_t[1]}%</td>
               </tr>
               <tr>
-                <td>法务</td>
+                <td>产品线总监</td>
                 <td>{l1_t[2]}</td>
-                <td>{l2_t[2]}</td>
-                <td>{l3_t[2]}</td>
-                <td>{l4_t[2]}%</td>
+                <td>{l2_t[2]}%</td>
               </tr>
               <tr>
-                <td>CS主管</td>
+                <td>运作副总</td>
                 <td>{l1_t[3]}</td>
-                <td>{l2_t[3]}</td>
-                <td>{l3_t[3]}</td>
-                <td>{l4_t[3]}%</td>
+                <td>{l2_t[3]}%</td>
               </tr>
               <tr>
-                <td>区域经理</td>
+                <td>Segment负责人</td>
                 <td>{l1_t[4]}</td>
-                <td>{l2_t[4]}</td>
-                <td>{l3_t[4]}</td>
-                <td>{l4_t[4]}%</td>
-              </tr>
-              <tr>
-                <td>销售副总</td>
-                <td>{l1_t[5]}</td>
-                <td>{l2_t[5]}</td>
-                <td>{l3_t[5]}</td>
-                <td>{l4_t[5]}%</td>
+                <td>{l2_t[4]}%</td>
               </tr>
               <tr>
                 <td>董事长</td>
+                <td>{l1_t[5]}</td>
+                <td>{l2_t[5]}%</td>
+              </tr>
+              <tr>
+                <td>物控经理盖章</td>
                 <td>{l1_t[6]}</td>
-                <td>{l2_t[6]}</td>
-                <td>{l3_t[6]}</td>
-                <td>{l4_t[6]}%</td>
+                <td>{l2_t[6]}%</td>
               </tr>
               <tr>
                 <td>流程结束</td>
                 <td>{l1_t[7]}</td>
-                <td>{l2_t[7]}</td>
-                <td>{l3_t[7]}</td>
-                <td>{l4_t[7]}%</td>
+                <td>{l2_t[7]}%</td>
               </tr>
               <tr>
                 <th>总计</th>
                 <td>{l1_t[8]}</td>
-                <td>{l2_t[8]}</td>
-                <td>{l3_t[8]}</td>
-                <td>{l4_t[8]}%</td>
+                <td>{l2_t[8]}%</td>
               </tr>
             </table>
           </div>
@@ -391,23 +283,18 @@ try:
     </ol>
   </div>
 </body>
-
 </html>
 
-""".format(date=date_yesterdayList,l1=actCol,l2=pasCol,l3=todaySumCol,l4=percentCol,\
-l1_t=actCol_t,l2_t=pasCol_t,l3_t=allSumCol,l4_t=percentCol_t,\
-law_total_today=law_total_today,law_total_today_p=int(round(law_total_today*100.0/todaySumCol[7]+todaySumCol[6])),\
-law_act_today=law_act_today,law_act_today_p=int(round(law_act_today*100.0/actCol[7]+actCol[6])),\
-law_pas_today=law_pas_today,law_pas_today_p=int(round(law_pas_today*100.0/pasCol[7]+pasCol[6])),\
-law_total_all=law_total_all,law_total_all_p=int(round(law_total_all*100.0/allSumCol[7]+allSumCol[6])),\
-law_act_all=law_act_all,law_act_all_p=int(round(law_act_all*100.0/actCol_t[7]+actCol_t[6])),\
-law_pas_all=law_pas_all,law_pas_all_p=int(round(law_pas_all*100.0/pasCol_t[7]+pasCol_t[6])),\
+""".format(date=date_yesterdayList,l1=poCol,l2=percentCol,\
+l1_t=poCol_t,l2_t=percentCol_t,\
+law_total_today=law_total_today,law_total_today_p=int(round(law_total_today*100.0/poCol[7]+poCol[6])),\
+law_total_all=law_total_all,law_total_all_p=int(round(law_total_all*100.0/poCol_t[7]+poCol_t[6])),\
 )
 
     msg = MIMEText(htmlContent,'html','utf-8')
     msg['Subject'] = subject
     msg['from'] = 'jimmyyu@fortune-co.com'
-    msg['to'] = 'ERPSUPPORT@fortune-co.com'
+    msg['to'] = ','.join(receiver)
     smtp = smtplib.SMTP()
     smtp.connect(smtpserver)
     smtp.login(username, password)

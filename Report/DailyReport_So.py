@@ -187,7 +187,7 @@ try:
 
     #--------------------发送Email部分-------------------------
     sender = 'jimmyyu@fortune-co.com'
-    receiver = ['ERPSUPPORT@fortune-co.com']
+    receiver = ['ERPSUPPORT@fortune-co.com','jacksun@fortune-co.com']
     subject = str(now.month)+'月'+str(now.day-1)+'日销售订单审批流程试运行总结'
     smtpserver = 'smtp.fortune-co.com'
     username = 'jimmyyu@fortune-co.com'
@@ -407,7 +407,7 @@ law_pas_all=law_pas_all,law_pas_all_p=int(round(law_pas_all*100.0/pasCol_t[7]+pa
     msg = MIMEText(htmlContent,'html','utf-8')
     msg['Subject'] = subject
     msg['from'] = 'jimmyyu@fortune-co.com'
-    msg['to'] = 'ERPSUPPORT@fortune-co.com'
+    msg['to'] = ','.join(receiver)
     smtp = smtplib.SMTP()
     smtp.connect(smtpserver)
     smtp.login(username, password)
