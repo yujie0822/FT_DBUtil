@@ -78,8 +78,8 @@ try:
 
 except Exception as e:
     print e
-    oaCursor.close ()
-    oaConn.close ()
+    oaCursor.close()
+    oaConn.close()
     print "OA Connection Disconnected"
     jdeCursor.close()
     jdeConn.close()
@@ -93,6 +93,6 @@ except Exception as e:
 jdeCursor.close()
 jdeConn.close()
 print "JDE Connection Disconnected"
-oaCursor.close ()
-oaConn.close ()
+oaCursor.close()
+oaConn.close()
 print "OA Connection Disconnected"
