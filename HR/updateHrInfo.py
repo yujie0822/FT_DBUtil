@@ -7,7 +7,7 @@ import sys
 stdout = sys.stdout
 stdin = sys.stdin
 stderr = sys.stderr
-reload( sys )
+reload(sys)
 sys.setdefaultencoding('utf-8')
 sys.stdout = stdout
 sys.stdin = stdin

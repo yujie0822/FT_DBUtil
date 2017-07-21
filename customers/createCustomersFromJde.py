@@ -6,7 +6,7 @@ import datetime
 stdout = sys.stdout
 stdin = sys.stdin
 stderr = sys.stderr
-reload( sys )
+reload(sys)
 sys.setdefaultencoding('utf-8')
 sys.stdout = stdout
 sys.stdin = stdin
@@ -67,6 +67,11 @@ MODEDATACREATER,MODEDATACREATERTYPE,MODEDATACREATEDATE,MODEDATACREATETIME) VALUE
 
             oaCursor.execute(insertSql)
 
+            insertZqSql = "insert INTO uf_khzq (C_ID,FORMMODEID,MODEDATACREATER,\
+MODEDATACREATERTYPE,MODEDATACREATEDATE,MODEDATACREATETIME) VALUES ({},341,89,0\
+,\'{}\',\'{}\')".format(tempList[0],date_today,time_now)
+
+            oaCursor.execute(insertZqSql)
     oaConn.commit()
 
 except Exception as e:

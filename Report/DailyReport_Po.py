@@ -287,8 +287,8 @@ try:
 
 """.format(date=date_yesterdayList,l1=poCol,l2=percentCol,\
 l1_t=poCol_t,l2_t=percentCol_t,\
-law_total_today=law_total_today,law_total_today_p=int(round(law_total_today*100.0/poCol[7]+poCol[6])),\
-law_total_all=law_total_all,law_total_all_p=int(round(law_total_all*100.0/poCol_t[7]+poCol_t[6])),\
+law_total_today=law_total_today,law_total_today_p=int(round(law_total_today*100.0/poCol[7]+poCol[5])),\
+law_total_all=law_total_all,law_total_all_p=int(round(law_total_all*100.0/poCol_t[7]+poCol_t[5])),\
 )
 
     msg = MIMEText(htmlContent,'html','utf-8')

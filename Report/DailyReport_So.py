@@ -187,7 +187,7 @@ try:
 
     #--------------------发送Email部分-------------------------
     sender = 'jimmyyu@fortune-co.com'
-    receiver = ['ERPSUPPORT@fortune-co.com','jacksun@fortune-co.com']
+    receiver = ['jimmyyu@fortune-co.com','774988468@qq.com']
     subject = str(now.month)+'月'+str(now.day-1)+'日销售订单审批流程试运行总结'
     smtpserver = 'smtp.fortune-co.com'
     username = 'jimmyyu@fortune-co.com'
