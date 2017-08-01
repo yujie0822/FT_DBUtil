@@ -30,7 +30,7 @@ print "OA Connection Connected"
 def createReportSql(wfid,dateFromStr,dateToStr):
     resultStr = "select t_req.requestid,t_req.currentnodeid from workflow_requestbase \
 t_req left join workflow_nodebase t_node on t_node.id = t_req.currentnodeid \
-where t_req.workflowid = "+str(wfid)+" and t_req.createdate >= \'"+dateFromStr+"\'\
+where (t_req.workflowid = "+str(wfid)+" ) and t_req.createdate >= \'"+dateFromStr+"\'\
 and t_req.createdate <= \'"+dateToStr+"\'"
     return resultStr
 
@@ -42,7 +42,7 @@ where t_ope.userid = {0} and t_ope.workflowid = {1} and t_req.createdate >= '{3}
 as ACT,
 (select count(t_ope.requestid) from workflow_currentoperator t_ope
 left join workflow_requestbase t_req on t_req.requestid = t_ope.requestid
-where t_ope.userid = {0} and t_ope.workflowid = {2} and t_req.createdate >= '{3}' and t_req.createdate <= '{4}')
+where t_ope.userid = {0} and ( t_ope.workflowid = {2} ) and t_req.createdate >= '{3}' and t_req.createdate <= '{4}')
 as PAS from dual)
 union
 (select (select count(t_ope.requestid) from workflow_currentoperator t_ope
@@ -51,34 +51,34 @@ where t_ope.userid = {0} and t_ope.workflowid = {1} and t_req.createdate >= '{5}
 as ACT,
 (select count(t_ope.requestid) from workflow_currentoperator t_ope
 left join workflow_requestbase t_req on t_req.requestid = t_ope.requestid
-where t_ope.userid = {0} and t_ope.workflowid = {2} and t_req.createdate >= '{5}' and t_req.createdate <= '{6}')
+where t_ope.userid = {0} and ( t_ope.workflowid = {2} ) and t_req.createdate >= '{5}' and t_req.createdate <= '{6}')
 as PAS from dual)
 """.format(userid,wfid1,wfid2,dateFromStr1,dateToStr1,dateFromStr2,dateToStr2)
     return resultStr
 try:
     #Passive今日销售订单节点状态List
-    oaCursor.execute(createReportSql(61,date_yesterday,date_yesterday))
+    oaCursor.execute(createReportSql("61 or t_req.workflowid = 522 ",date_yesterday,date_yesterday))
     pasTodayStatus = oaCursor.fetchall()
     pasTodayNodes = [x[1] for x in pasTodayStatus]
     pasCol = [0 for x in range(9)]
     #CS
-    pasCol[0] = pasTodayNodes.count(261)
+    pasCol[0] = pasTodayNodes.count(261)+pasTodayNodes.count(1522)
     #销售
-    pasCol[1] = pasTodayNodes.count(1081)
+    pasCol[1] = pasTodayNodes.count(1081)+pasTodayNodes.count(1536)
     #法务
-    pasCol[2] = pasTodayNodes.count(908)
+    pasCol[2] = pasTodayNodes.count(908)+pasTodayNodes.count(1535)
     #CS主管
-    pasCol[3] = pasTodayNodes.count(262)
+    pasCol[3] = pasTodayNodes.count(262)+pasTodayNodes.count(1523)
     #区域经理
-    pasCol[4] = pasTodayNodes.count(264)+pasTodayNodes.count(325)
+    pasCol[4] = pasTodayNodes.count(264)+pasTodayNodes.count(325)+pasTodayNodes.count(1525)+pasTodayNodes.count(1533)
     #销售副总
-    pasCol[5] = pasTodayNodes.count(265)
+    pasCol[5] = pasTodayNodes.count(265)+pasTodayNodes.count(1526)
     #董事长
-    pasCol[6] = pasTodayNodes.count(268)
+    pasCol[6] = pasTodayNodes.count(268)+pasTodayNodes.count(1529)
     # 流程结束
-    pasCol[7] = pasTodayNodes.count(269)
+    pasCol[7] = pasTodayNodes.count(269)+pasTodayNodes.count(1530)
     #总计
-    pasCol[8] = len(pasTodayNodes)-pasTodayNodes.count(426)
+    pasCol[8] = len(pasTodayNodes)-pasTodayNodes.count(426)-pasTodayNodes.count(1534)
 
     #Active今日销售订单节点状态List
     oaCursor.execute(createReportSql(62,date_yesterday,date_yesterday))
@@ -105,31 +105,34 @@ try:
     actCol[8] = len(actTodayNodes)-actTodayNodes.count(427)
 
     todaySumCol = [pasCol[x]+actCol[x] for x in range(9)]
-    percentCol = [int(round(float(todaySumCol[x])*100.0/float(todaySumCol[8]))) for x in range(9)]
+    if(todaySumCol[8] == 0):
+        percentCol = [0 for x in range(9)]
+    else:
+        percentCol = [int(round(float(todaySumCol[x])*100.0/float(todaySumCol[8]))) for x in range(9)]
 
     #Passive累计销售订单节点状态List
-    oaCursor.execute(createReportSql(61,'2017-07-01',date_yesterday))
+    oaCursor.execute(createReportSql("61 or t_req.workflowid = 522 ",'2017-07-01',date_yesterday))
     pasAllStatus = oaCursor.fetchall()
     pasAllNodes = [x[1] for x in pasAllStatus]
     pasCol_t = [0 for x in range(9)]
     #CS
-    pasCol_t[0] = pasAllNodes.count(261)
+    pasCol_t[0] = pasAllNodes.count(261)+pasAllNodes.count(1522)
     #销售
-    pasCol_t[1] = pasAllNodes.count(1081)
+    pasCol_t[1] = pasAllNodes.count(1081)+pasAllNodes.count(1536)
     #法务
-    pasCol_t[2] = pasAllNodes.count(908)
+    pasCol_t[2] = pasAllNodes.count(908)+pasAllNodes.count(1535)
     #CS主管
-    pasCol_t[3] = pasAllNodes.count(262)
+    pasCol_t[3] = pasAllNodes.count(262)+pasAllNodes.count(1523)
     #区域经理
-    pasCol_t[4] = pasAllNodes.count(264)+pasAllNodes.count(325)
+    pasCol_t[4] = pasAllNodes.count(264)+pasAllNodes.count(325)+pasAllNodes.count(1525)+pasAllNodes.count(1533)
     #销售副总
-    pasCol_t[5] = pasAllNodes.count(265)
+    pasCol_t[5] = pasAllNodes.count(265)+pasAllNodes.count(1526)
     #董事长
-    pasCol_t[6] = pasAllNodes.count(268)
+    pasCol_t[6] = pasAllNodes.count(268)+pasAllNodes.count(1529)
     # 流程结束
-    pasCol_t[7] = pasAllNodes.count(269)
+    pasCol_t[7] = pasAllNodes.count(269)+pasAllNodes.count(1530)
     #总计
-    pasCol_t[8] = len(pasAllNodes)-pasAllNodes.count(426)
+    pasCol_t[8] = len(pasAllNodes)-pasAllNodes.count(426)-pasAllNodes.count(1534)
 
     #Active累计销售订单节点状态List
     oaCursor.execute(createReportSql(62,'2017-07-01',date_yesterday))
@@ -175,7 +178,7 @@ try:
     else:
         print "act总和正常"
 
-    oaCursor.execute(createPersonalReportSql(21,62,61,date_yesterday,date_yesterday,'2017-07-10',date_yesterday))
+    oaCursor.execute(createPersonalReportSql(21,62,"61 or t_ope.workflowid = 522",date_yesterday,date_yesterday,'2017-07-10',date_yesterday))
     lawStatus = oaCursor.fetchall()
     law_total_today = lawStatus[0][0]+lawStatus[0][1]
     law_act_today = lawStatus[0][0]
@@ -185,11 +188,44 @@ try:
     law_act_all = lawStatus[1][0]
     law_pas_all = lawStatus[1][1]
 
+
+    if((todaySumCol[7]+todaySumCol[6]) == 0):
+        law_total_today_p=0
+    else:
+        law_total_today_p=int(round(law_total_today*100.0/(todaySumCol[7]+todaySumCol[6])))
+
+    if((actCol[7]+actCol[6]) == 0):
+        law_act_today_p=0
+    else:
+        law_act_today_p=int(round(law_act_today*100.0/(actCol[7]+actCol[6])))
+
+    if((pasCol[7]+pasCol[6]) == 0):
+        law_pas_today_p=0
+    else:
+        law_pas_today_p = int(round(law_pas_today*100.0/(pasCol[7]+pasCol[6])))
+
+    if((allSumCol[7]+allSumCol[6])==0):
+        law_total_all_p=0
+    else:
+        law_total_all_p=int(round(law_total_all*100.0/(allSumCol[7]+allSumCol[6])))
+
+    if((actCol_t[7]+actCol_t[6])==0):
+        law_act_all_p=0
+    else:
+        law_act_all_p=int(round(law_act_all*100.0/(actCol_t[7]+actCol_t[6])))
+
+    if((pasCol_t[7]+pasCol_t[6])==0):
+        law_pas_all_p=0
+    else:
+        law_pas_all_p=int(round(law_pas_all*100.0/(pasCol_t[7]+pasCol_t[6])))
+
+
     #--------------------发送Email部分-------------------------
     sender = 'jimmyyu@fortune-co.com'
-    receiver = ['jimmyyu@fortune-co.com','774988468@qq.com']
-    subject = str(now.month)+'月'+str(now.day-1)+'日销售订单审批流程试运行总结'
-    smtpserver = 'smtp.fortune-co.com'
+    receiver = ['ERPSUPPORT@fortune-co.com','jacksun@fortune-co.com']
+    # receiver = ['jimmyyu@fortune-co.com']
+    subject = str(date_yesterdayList[0])+'月'+str(date_yesterdayList[1])+'日销售订单审批流程试运行总结'
+    smtpserver = '220.181.97.136'
     username = 'jimmyyu@fortune-co.com'
     password = 'Xiaoyu822'
 
@@ -396,12 +432,12 @@ try:
 
 """.format(date=date_yesterdayList,l1=actCol,l2=pasCol,l3=todaySumCol,l4=percentCol,\
 l1_t=actCol_t,l2_t=pasCol_t,l3_t=allSumCol,l4_t=percentCol_t,\
-law_total_today=law_total_today,law_total_today_p=int(round(law_total_today*100.0/todaySumCol[7]+todaySumCol[6])),\
-law_act_today=law_act_today,law_act_today_p=int(round(law_act_today*100.0/actCol[7]+actCol[6])),\
-law_pas_today=law_pas_today,law_pas_today_p=int(round(law_pas_today*100.0/pasCol[7]+pasCol[6])),\
-law_total_all=law_total_all,law_total_all_p=int(round(law_total_all*100.0/allSumCol[7]+allSumCol[6])),\
-law_act_all=law_act_all,law_act_all_p=int(round(law_act_all*100.0/actCol_t[7]+actCol_t[6])),\
-law_pas_all=law_pas_all,law_pas_all_p=int(round(law_pas_all*100.0/pasCol_t[7]+pasCol_t[6])),\
+law_total_today=law_total_today,law_total_today_p=law_total_today_p,\
+law_act_today=law_act_today,law_act_today_p=law_act_today_p,\
+law_pas_today=law_pas_today,law_pas_today_p=law_pas_today_p,\
+law_total_all=law_total_all,law_total_all_p=law_total_all_p,\
+law_act_all=law_act_all,law_act_all_p=law_act_all_p,\
+law_pas_all=law_pas_all,law_pas_all_p=law_pas_all_p,\
 )
 
     msg = MIMEText(htmlContent,'html','utf-8')

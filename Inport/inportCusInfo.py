@@ -91,6 +91,10 @@ try:
         eachUpdateSql = "update uf_customers set C_REGADDRESS = \'{}\',\
 C_FOUNDYEAR=\'{}\',C_CREDITCODE=\'{}\',C_REGFUND=\'{}\',C_EXPDATE=\'{}\' where \
 C_ID = {}".format(addressList[x],clnfList[x],xydmList[x],zczjList[x],dqrList[x],codeList[x])
+
+#     for x in range(len(codeList)):
+#         eachUpdateSql = "update uf_customers set C_EXPDATE=\'{}\' where \
+# C_ID = {}".format(dqrList[x],codeList[x])
         print eachUpdateSql
         oaCursor.execute(eachUpdateSql)
     oaConn.commit()

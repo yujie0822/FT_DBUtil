@@ -25,7 +25,7 @@ oaConn = cx_Oracle.connect('oadb/oracle@192.168.0.89:1521/OADB')
 oaCursor = oaConn.cursor()
 print "OA Connection Connected"
 
-startAn8 = "5000000"
+startAn8 = "5009997"
 endAn8 = "5999999"
 
 try:
