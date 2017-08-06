@@ -1,20 +1,12 @@
 # -*- coding: utf-8 -*-
 import cx_Oracle
-import os
 import sys
+sys.path.append(".")
 import datetime
 import smtplib
 import math
 from email.mime.text import MIMEText
-stdout = sys.stdout
-stdin = sys.stdin
-stderr = sys.stderr
-reload( sys )
-sys.setdefaultencoding('utf-8')
-sys.stdout = stdout
-sys.stdin = stdin
-sys.stderr = stderr
-os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
+import SqlEnv
 
 now=datetime.datetime.now()
 yesterday = now+datetime.timedelta(days=-1)
@@ -23,7 +15,7 @@ time_now = now.strftime('%H:%M:%S')
 date_yesterday = yesterday.strftime('%Y-%m-%d')
 date_yesterdayList = [yesterday.month,yesterday.day]
 
-oaConn = cx_Oracle.connect('oadb/oracle@192.168.0.89:1521/OADB')
+oaConn = cx_Oracle.connect(SqlEnv.MAIN_OA_CONNECT_STRING)
 oaCursor = oaConn.cursor()
 print "OA Connection Connected"
 

@@ -1,20 +1,8 @@
 # -*- coding: utf-8 -*-
-import cx_Oracle
-import os
-import sys
-import datetime
-import smtplib
-import math
+import cx_Oracle,sys,datetime,smtplib,math
+sys.path.append(".")
 from email.mime.text import MIMEText
-stdout = sys.stdout
-stdin = sys.stdin
-stderr = sys.stderr
-reload( sys )
-sys.setdefaultencoding('utf-8')
-sys.stdout = stdout
-sys.stdin = stdin
-sys.stderr = stderr
-os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
+import SqlEnv
 
 now=datetime.datetime.now()
 yesterday = now+datetime.timedelta(days=-1)
@@ -25,7 +13,7 @@ date_yesterdayList = [yesterday.month,yesterday.day]
 
 
 
-oaConn = cx_Oracle.connect('oadb/oracle@192.168.0.89:1521/OADB')
+oaConn = cx_Oracle.connect(SqlEnv.MAIN_OA_CONNECT_STRING)
 oaCursor = oaConn.cursor()
 print "OA Connection Connected"
 
@@ -139,8 +127,8 @@ try:
 
     #--------------------发送Email部分-------------------------
     sender = 'jimmyyu@fortune-co.com'
-    receiver = ['ERPSUPPORT@fortune-co.com','jacksun@fortune-co.com']
-    # receiver = ['jimmyyu@fortune-co.com']
+    # receiver = ['ERPSUPPORT@fortune-co.com','jacksun@fortune-co.com']
+    receiver = ['jimmyyu@fortune-co.com']
     subject = str(date_yesterdayList[0])+'月'+str(date_yesterdayList[1])+'日采购订单审批流程试运行总结'
     smtpserver = '220.181.97.136'
     username = 'jimmyyu@fortune-co.com'
@@ -178,7 +166,7 @@ try:
     <p>以下分别列出{date[0]}月{date[1]}日当日及截止{date[0]}月{date[1]}日累计采购订单审批流程试运行的情况：</p>
     <p>{date[0]}月{date[1]}日当日：</p>
     <ol>
-      <li>今天的有效订单一共{l1[8]}单，流程结束的一共{l1[7]}单，批到Lawrence的{law_total_today}单
+      <li>今天的有效订单一共{l1[9]}单，流程结束的一共{l1[8]}单，批到Lawrence的{law_total_today}单
         -总占比{law_total_today_p}%</li>
       <li>流程各节点占比情况:
         <div class="myTableRow">
@@ -244,7 +232,7 @@ try:
     </ol>
     <p>截止{date[0]}月{date[1]}日累计：</p>
     <ol>
-      <li>累计的有效订单一共{l1_t[8]}单，流程结束的一共{l1_t[7]}单，
+      <li>累计的有效订单一共{l1_t[9]}单，流程结束的一共{l1_t[8]}单，
         批到Lawrence的{law_total_all}单-总占比{law_total_all_p}%</li>
         <li>流程各节点占比情况:
           <div class="myTableRow">
