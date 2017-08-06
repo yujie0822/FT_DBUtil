@@ -12,7 +12,7 @@ password = 'Xiaoyu822'
 def sendTextMailTo(p_receiver,p_subject,p_text):
     msg = MIMEText(p_text,'plain','utf-8')
     msg['Subject'] = p_subject
-    msg['from'] = '邮件推送服务 <jimmyyu@fortune-co.com>'
+    msg['from'] = 'jimmyyu@fortune-co.com'
     msg['to'] = ','.join(p_receiver)
     smtp = smtplib.SMTP()
     smtp.connect(smtpserver)
@@ -23,7 +23,7 @@ def sendTextMailTo(p_receiver,p_subject,p_text):
 def sendHtmlMailTo(p_receiver,p_subject,p_text):
     msg = MIMEText(p_text,'html','utf-8')
     msg['Subject'] = p_subject
-    msg['from'] = '邮件推送服务 <jimmyyu@fortune-co.com>'
+    msg['from'] = 'jimmyyu@fortune-co.com'
     msg['to'] = ','.join(p_receiver)
     smtp = smtplib.SMTP()
     smtp.connect(smtpserver)
@@ -34,7 +34,7 @@ def sendHtmlMailTo(p_receiver,p_subject,p_text):
 def sendMultMailTo(p_receiver,p_subject,p_text,p_type,p_attachList):
     msg = MIMEMultipart()
     msg['Subject'] = p_subject
-    msg['from'] = '邮件推送服务 <jimmyyu@fortune-co.com>'
+    msg['from'] = 'jimmyyu@fortune-co.com'
     msg['to'] = ','.join(p_receiver)
     msg.attach(MIMEText(p_text, p_type, 'utf-8'))
     for eachAttatch in p_attachList:
