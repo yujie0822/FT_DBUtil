@@ -1,0 +1,8 @@
+2017-08-06 22:24:59,319 - ReportLog - INFO - 采购订单流程报表：OA Database Connected
+2017-08-06 22:24:59,713 - ReportLog - INFO - 采购订单流程报表：邮件发送成功
+2017-08-06 22:24:59,721 - ReportLog - INFO - 采购订单流程报表：OA Database Disconnected
+2017-08-06 22:32:17,019 - ReportLog - ERROR - 销售订单流程报表：%s
+Traceback (most recent call last):
+  File "D:\Code\FT_DBUtil\Report\DailyReport_So.py", line 426, in <module>
+    MailUtil.sendHtmlMailTo(receiver,subject,htmlContent)
+NameError: name 'MailUtil' is not defined

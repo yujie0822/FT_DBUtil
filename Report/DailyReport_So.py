@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
-import cx_Oracle
-import sys
+import cx_Oracle,sys,datetime,smtplib,math
 sys.path.append(".")
-import datetime
-import smtplib
-import math
 from email.mime.text import MIMEText
-import SqlEnv
-
+import SqlEnv,MailUtil,ReportLog
 now=datetime.datetime.now()
 yesterday = now+datetime.timedelta(days=-1)
 date_today = now.strftime('%Y-%m-%d')
@@ -17,7 +12,7 @@ date_yesterdayList = [yesterday.month,yesterday.day]
 
 oaConn = cx_Oracle.connect(SqlEnv.MAIN_OA_CONNECT_STRING)
 oaCursor = oaConn.cursor()
-print "OA Connection Connected"
+ReportLog.logger.info("销售订单流程报表：OA Database Connected")
 
 def createReportSql(wfid,dateFromStr,dateToStr):
     resultStr = "select t_req.requestid,t_req.currentnodeid from workflow_requestbase \
@@ -159,16 +154,16 @@ try:
     for x in pasCol[:-1]:
         pasSum+=x
     if(pasSum!=pasCol[8]):
-        print "pas总和异常"
+        ReportLog.logger.warning("销售订单流程报表：PAS总和异常")
     else:
-        print "pas总和正常"
+        ReportLog.logger.debug("销售订单流程报表：PAS总和正常")
     actSum = 0
     for x in actCol[:-1]:
         actSum+=x
     if(actSum!=actCol[8]):
-        print "act总和异常"
+        ReportLog.logger.warning("销售订单流程报表：ACT总和异常")
     else:
-        print "act总和正常"
+        ReportLog.logger.debug("销售订单流程报表：ACT总和正常")
 
     oaCursor.execute(createPersonalReportSql(21,62,"61 or t_ope.workflowid = 522",date_yesterday,date_yesterday,'2017-07-10',date_yesterday))
     lawStatus = oaCursor.fetchall()
@@ -213,14 +208,9 @@ try:
 
 
     #--------------------发送Email部分-------------------------
-    sender = 'jimmyyu@fortune-co.com'
     receiver = ['ERPSUPPORT@fortune-co.com','jacksun@fortune-co.com']
     # receiver = ['jimmyyu@fortune-co.com']
     subject = str(date_yesterdayList[0])+'月'+str(date_yesterdayList[1])+'日销售订单审批流程试运行总结'
-    smtpserver = '220.181.97.136'
-    username = 'jimmyyu@fortune-co.com'
-    password = 'Xiaoyu822'
-
     htmlContent = """
 <html>
 <head>
@@ -432,25 +422,14 @@ law_act_all=law_act_all,law_act_all_p=law_act_all_p,\
 law_pas_all=law_pas_all,law_pas_all_p=law_pas_all_p,\
 )
 
-    msg = MIMEText(htmlContent,'html','utf-8')
-    msg['Subject'] = subject
-    msg['from'] = 'jimmyyu@fortune-co.com'
-    msg['to'] = ','.join(receiver)
-    smtp = smtplib.SMTP()
-    smtp.connect(smtpserver)
-    smtp.login(username, password)
-    smtp.sendmail(sender, receiver, msg.as_string())
-    smtp.quit()
-    print "邮件发送成功"
+    MailUtil.sendHtmlMailTo(receiver,subject,htmlContent)
+    ReportLog.logger.info("销售订单流程报表：邮件发送成功")
 
 except Exception as e:
-    print e
-    oaCursor.close()
-    oaConn.close()
-    print "OA Connection Disconnected_"
+    ReportLog.logger.error("销售订单流程报表：Error"+str(e),exc_info=True)
     raise
 
-#关闭连接
-oaCursor.close()
-oaConn.close()
-print "OA Connection Disconnected"
+finally:
+    oaCursor.close()
+    oaConn.close()
+    ReportLog.logger.info("销售订单流程报表：OA Database Disconnected")

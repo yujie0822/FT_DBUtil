@@ -19,7 +19,6 @@ def sendTextMailTo(p_receiver,p_subject,p_text):
     smtp.login(username, password)
     smtp.sendmail(sender, p_receiver, msg.as_string())
     smtp.quit()
-    print "文本邮件发送成功"
 
 def sendHtmlMailTo(p_receiver,p_subject,p_text):
     msg = MIMEText(p_text,'html','utf-8')
@@ -31,22 +30,23 @@ def sendHtmlMailTo(p_receiver,p_subject,p_text):
     smtp.login(username, password)
     smtp.sendmail(sender, p_receiver, msg.as_string())
     smtp.quit()
-    print "html邮件发送成功"
 
-def sendMultMailTo(p_receiver,p_subject,p_text,p_type,p_url,p_filename):
+def sendMultMailTo(p_receiver,p_subject,p_text,p_type,p_attachList):
     msg = MIMEMultipart()
     msg['Subject'] = p_subject
     msg['from'] = '邮件推送服务 <jimmyyu@fortune-co.com>'
     msg['to'] = ','.join(p_receiver)
     msg.attach(MIMEText(p_text, p_type, 'utf-8'))
-    with open (p_url,'rb') as f:
-        part = MIMEApplication(f.read())
-        part.add_header('Content-Disposition', 'attachment', filename=p_filename)
-        msg.attach(part)
+    for eachAttatch in p_attachList:
+        p_url = eachAttatch[0]
+        p_filename = eachAttatch[1]
+        with open (p_url,'rb') as f:
+            part = MIMEApplication(f.read())
+            part.add_header('Content-Disposition', 'attachment', filename=p_filename)
+            msg.attach(part)
 
     smtp = smtplib.SMTP()
     smtp.connect(smtpserver)
     smtp.login(username, password)
     smtp.sendmail(sender, p_receiver, msg.as_string())
     smtp.quit()
-    print "Mult邮件发送成功"
