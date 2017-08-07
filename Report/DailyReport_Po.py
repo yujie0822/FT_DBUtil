@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import cx_Oracle,sys,datetime,smtplib,math
-sys.path.append(".")
+sys.path.append("..")
 from email.mime.text import MIMEText
 import SqlEnv
 import MailUtil
@@ -127,7 +127,7 @@ try:
 
     #--------------------发送Email部分-------------------------
     receiver = ['ERPSUPPORT@fortune-co.com','jacksun@fortune-co.com']
-    # receiver = ['jimmyyu@fortune-co.com']
+    #receiver = ['jimmyyu@fortune-co.com']
     subject = str(date_yesterdayList[0])+'月'+str(date_yesterdayList[1])+'日采购订单审批流程试运行总结'
 
 

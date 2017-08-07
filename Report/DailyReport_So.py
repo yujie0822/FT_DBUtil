@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import cx_Oracle,sys,datetime,smtplib,math
-sys.path.append(".")
+sys.path.append("..")
 from email.mime.text import MIMEText
 import SqlEnv,MailUtil,ReportLog
 now=datetime.datetime.now()
