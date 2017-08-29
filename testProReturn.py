@@ -7,7 +7,7 @@ oaCursor = oaConn.cursor()
 print "OA Connection Connected"
 
 try:
-    p1 = 12345
+    p1=12345
     msg = oaCursor.var(cx_Oracle.STRING)
     oaCursor.callproc('P_TEST_JIMMY',[p1,msg])
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import cx_Oracle,sys,datetime,smtplib,math
-sys.path.append(".")
+sys.path.append("..")
 from email.mime.text import MIMEText
 import SqlEnv
 import MailUtil
@@ -126,8 +126,8 @@ try:
         law_total_today_p=int(round(law_total_today*100.0/poCol[8]+poCol[5]))
 
     #--------------------发送Email部分-------------------------
-    receiver = ['ERPSUPPORT@fortune-co.com','jacksun@fortune-co.com']
-    # receiver = ['jimmyyu@fortune-co.com']
+    # receiver = ['ERPSUPPORT@fortune-co.com','jacksun@fortune-co.com']
+    receiver = ['jimmyyu@fortune-co.com']
     subject = str(date_yesterdayList[0])+'月'+str(date_yesterdayList[1])+'日采购订单审批流程试运行总结'
 
 
@@ -302,7 +302,7 @@ l1_t=poCol_t,l2_t=percentCol_t,\
 law_total_today=law_total_today,law_total_today_p=law_total_today_p,\
 law_total_all=law_total_all,law_total_all_p=int(round(law_total_all*100.0/poCol_t[8]+poCol_t[5])),\
 )
-    MailUtil.sendHtmlMailTo(receiver,subject,htmlContent)
+    MailUtil.sendHtmlMailTo(receiver, subject, htmlContent)
     ReportLog.logger.info("采购订单流程报表：邮件发送成功")
 
 except Exception as e:

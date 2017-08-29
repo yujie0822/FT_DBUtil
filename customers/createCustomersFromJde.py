@@ -25,7 +25,7 @@ oaConn = cx_Oracle.connect('oadb/oracle@192.168.0.89:1521/OADB')
 oaCursor = oaConn.cursor()
 print "OA Connection Connected"
 
-startAn8 = "5009997"
+startAn8 = "5010037"
 endAn8 = "5999999"
 
 try:
@@ -53,12 +53,12 @@ where t2.C_ID>="+startAn8+" and t2.C_ID <="+endAn8+"  order by t2.C_ID")
                     tempList[x] = ''
                 else:
                     tempList[x] = str(tempList[x])
-            insertSql = "insert into uf_customers (C_ID,C_NAME,C_AREA,C_STATUS,khzt,\
-bcxy,C_APPLYFIELD,khjckq,C_PAYTYPE,kpdz,dh,khyh,yhzh,sh,C_CONTRACT,C_ISNCNR,FORMMODEID,\
+            insertSql = "insert into uf_customers (C_ID,C_NAME,C_AREA,C_STATUS,khjyzt,\
+bcxy,C_APPLYFIELD,khjckq,kpdz,dh,khyh,yhzh,sh,C_CONTRACT,C_ISNCNR,FORMMODEID,\
 MODEDATACREATER,MODEDATACREATERTYPE,MODEDATACREATEDATE,MODEDATACREATETIME) VALUES \
 (\'"+tempList[0]+"\',\'"+tempList[1]+"\',\'"+tempList[2]+"\',\'"\
             +tempList[3]+"\',\'"+tempList[4]+"\',\'"+tempList[5]+"\',\'"\
-            +tempList[6]+"\',\'"+tempList[7]+"\',\'"+tempList[8]+"\',\'"\
+            +tempList[6]+"\',\'"+tempList[7]+"\',\'"\
             +tempList[9]+"\',\'"+tempList[10]+"\',\'"+tempList[11]+"\',\'"\
             +tempList[12]+"\',\'"+tempList[13]+"\',0,0,3,89,0,\'"+date_today\
             +"\',\'"+time_now+"\')"
@@ -72,6 +72,7 @@ MODEDATACREATERTYPE,MODEDATACREATEDATE,MODEDATACREATETIME) VALUES ({},341,89,0\
 ,\'{}\',\'{}\')".format(tempList[0],date_today,time_now)
 
             oaCursor.execute(insertZqSql)
+            oaCursor.callproc('p_cus_addqx',[tempList[0]])
     oaConn.commit()
 
 except Exception as e:
